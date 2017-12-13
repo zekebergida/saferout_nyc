@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SAFERout</title>
+    <!-- from bootstrap theme begin -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- <title>Creative - Start Bootstrap Theme</title> -->
+
+    <!-- Bootstrap core CSS -->
+    <link href="public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="public/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+
+    <!-- Plugin CSS -->
+    <link href="public/vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="public/css/creative.css" rel="stylesheet">
+
+    <!-- from bootstrap theme end-->
+    
+    <link rel="stylesheet" href="index.css">
+
+
+  </head>
+
+  <body id="page-top">
+    <!-- from theme begin-->
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light" id="mainNav" style="background-color: gainsboro;">
+      <div class="container">
+        <!-- <a class="navbar-brand js-scroll-trigger" onClick="window.location.hash = '#home'">SAFERout</a> -->
+        <h1 style="font-family:impact; font-weight: lighter" onClick="window.location.hash = '#page-top'" >SAFERout</h1>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" onClick="window.location.hash = '#about'" style="color:black;">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" onClick="window.location.hash = '#map'" style="color:black;">Start Mapping</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header class="masthead">
+      <div class="header-content" id="home">
+        <div class="header-content-inner">
+          <h2 style="color:gainsboro; font-weight: bold">Get Safer Biking and Walking Routes Based on Collision History Data</h2>
+          <h1 id="homeHeading">Do You Bike NYC?</h1>
+          <h1 id="homeHeading">Do You Walk NYC?</h1>
+          <hr>
+          <p>In the first half of 2017, 6,856 pedestrians and cyclists were injured by NYC drivers and 55 were killed. If you do a lot of walking or biking in NYC you can use SAFERout to plot your routes and locate the safest option for getting around town.</p>
+          <a class="btn btn-primary btn-xl js-scroll-trigger" style="color: white" onClick="window.location.hash = '#map'">Stay Safe</a>
+        </div>
+      </div>
+    </header>
+
+    <input id="origin-input" class="controls" type="text"
+        placeholder="Enter an origin location">
+
+<input id="destination-input" class="controls" type="text"
+    placeholder="Enter a destination location">
+
+<div id="mode-selector" class="controls">
+  <input type="radio" name="type" id="changemode-walking" checked="checked">
+  <label for="changemode-walking">Walking</label>
+
+  <input type="radio" name="type" id="changemode-bicycling">
+  <label for="changemode-transit">Bicycling</label>
+
+  <!-- <input type="radio" name="type" id="changemode-transit">
+  <label for="changemode-transit">Transit</label>
+
+  <input type="radio" name="type" id="changemode-driving">
+  <label for="changemode-driving">Driving</label> -->
+</div>
+
+<div id="map"></div>
+
+
+    
+    <section class="bg-primary" id="control_panel">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <!-- <h2 class="section-heading text-white">We've got what you need!</h2> -->
+            <!-- <hr class="light"> -->
+            <p class="text-faded">Choose a travel mode then enter your origin and destination to visualize your route options. Choose Get Route Info to get the details.</p>
+            <!-- <p class="text-faded">Enter your origin and destination to visualize your route options.</p> -->
+            <a class="btn btn-default btn-xl js-scroll-trigger" onclick="getCollisionCount(); distanceAndDuration(); window.location.hash = '#control_panel'">Get Route Info</a>
+            <a class="btn btn-default btn-xl js-scroll-trigger" onclick="clearMarkers(); safestRoute(); window.location.hash = '#map'" >Show Safest Route</a>
+            <a class="btn btn-default btn-xl js-scroll-trigger" onclick="resetMap()" href="#map" >Reset Map</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="routes_info">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <h2 class="section-heading">Routes Info</h2>
+            <hr class="primary">
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 text-center">
+            <div class="service-box">
+              <!-- <i class="fa fa-4x fa-diamond text-primary sr-icons"></i> -->
+              <h3 style="color:red;">Route 1</h3>
+              <p class="distance text-muted"></p>
+              <p class="duration text-muted"></p>
+              <p class="text-muted data_title"></p>
+              <p class="data" style="font-weight:700; color:firebrick;"></p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 text-center">
+            <div class="service-box">
+              <!-- <i class="fa fa-4x fa-paper-plane text-primary sr-icons"></i> -->
+              <h3 style="color:blue;">Route 2</h3>
+              <p class="distance text-muted"></p>
+              <p class="duration text-muted"></p>
+              <p class="text-muted data_title"></p>
+              <p class="data" style="font-weight:700; color:firebrick;"></p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 text-center">
+            <div class="service-box">
+              <!-- <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i> -->
+              <h3 style="color:green;">Route 3</h3>
+              <p class="distance text-muted"></p>
+              <p class="duration text-muted"></p>
+              <p class="text-muted data_title"></p>
+              <p class="data" style="font-weight:700; color:firebrick;"></p>
+            </div>
+          </div>
+          <!-- <div class="col-lg-3 col-md-6 text-center">
+            <div class="service-box">
+              <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
+              <h3>Route 4</h3>
+              <p class="text-muted">Number of Pedestrians and Cyclists Injured or Killed on This Route</p>
+              <p class="data"></p>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </section>
+
+    <!-- <section class="p-0" id="portfolio">
+      <div class="container-fluid">
+        <div class="row no-gutter popup-gallery">
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/1.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/1.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/2.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/2.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/3.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/3.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/4.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/4.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/5.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/5.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <a class="portfolio-box" href="img/portfolio/fullsize/6.jpg">
+              <img class="img-fluid" src="img/portfolio/thumbnails/6.jpg" alt="">
+              <div class="portfolio-box-caption">
+                <div class="portfolio-box-caption-content">
+                  <div class="project-category text-faded">
+                    Category
+                  </div>
+                  <div class="project-name">
+                    Project Name
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <div class="call-to-action bg-dark">
+      <div class="container text-center">
+        <!-- <h2>Free Download at Start Bootstrap!</h2>
+        <a class="btn btn-default btn-xl sr-button" href="http://startbootstrap.com/template-overviews/creative/">Download Now!</a> -->
+      </div>
+    </div>
+    
+    <section id="about">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading" style="font-weight:bold;">About SAFERout</h2>
+            <hr class="primary">
+            <p>SAFERout combines a number of GoogleMaps API services to give you your route options and pulls data from the NYPD Motor Vehicle Collisions API provided by NYC OpenData to locate relevent collisions along your routes. SAFERout's assesment of route safety is based solely on comparing raw collision history data for each route. The NYPD Motor Vehicle Collisions API records all collisions in NYC beginning July 2012 </p>
+            <p style="font-weight:bold;">Check out the code or send feedback</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 ml-auto text-center">
+            <!-- <i class="fa fa-phone fa-3x sr-contact"></i> -->
+            <img src="public/github_icon.png">
+            <p><a href= "https://github.com/zekebergida/saferout" target="_blank">GitHub</a></p>
+          </div>
+          <div class="col-lg-4 mr-auto text-center">
+            <i class="fa fa-envelope-o fa-3x sr-contact"></i>
+            <p>
+              <a href="mailto:zekebergida@gmail.com?Subject=Hey Zeke! I was checking out your app">zekebergida@gmail.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- <script src="/vendor/jquery/jquery.min.js"></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0pWqvh4uJjV18gI3FvnpLz7vtdgWcplQ&libraries=places&callback=initMap"
+    async defer></script>
+    <script src="public/vendor/popper/popper.min.js"></script>
+    <script src="public/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="public/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="public/vendor/scrollreveal/scrollreveal.min.js"></script>
+    <script src="public/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+    <!-- Custom scripts for this template -->
+    <script src="public/js/creative.min.js"></script>
+    <!-- from theme end-->
+    
+            
+    <script type="text/javascript" src="index.js"></script>
+  </body>
+</html>
