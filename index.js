@@ -128,7 +128,7 @@ AutocompleteDirectionsHandler.prototype.route = function() {
                 var marker = new google.maps.Marker({
                   position: latLng,
                   map: this.map,
-                  icon: "bang.png"
+                  icon: "assets/bang.png"
                 }
                 );
                 markers.push(marker);
