@@ -155,36 +155,46 @@ $("#btn_route_info").click( function(){
   window.location.hash = '#control_panel'
   });
 
+$("#btn_safest_route").click( function{
+  clearMarkers();
+  displaySafestRoute();
+  window.location.hash = '#map'
+});
+
+$("#btn_reset_map").click( function(){
+  resetMap()
+});
 
 
-
-
+function clearMarkers() {
+  setMapOnAll(null);
+}
 function setMapOnAll(map) {
   for (var i = 0; i < markers.length; i++) {
     markers[i].setMap(map);
   }
 }
-function clearMarkers() {
-  setMapOnAll(null);
-}
-function indexOfMin(arr) {
-  if (arr.length === 0) {
+
+
+
+function getIndexOfSafestRoute(routesCollisionCount) {
+  if (routesCollisionCount.length === 0) {
     return -1;
   }
-  var min = arr[0];
-  var minIndex = 0;
-  for (var i = 1; i < arr.length; i++) {
-    if (arr[i] < min) {
-      minIndex = i;
-      min = arr[i];
+  var lowestCollisionCount = routesCollisionCount[0];
+  var indexOfSafestRoute = 0;
+  for (var i = 1; i < routesCollisionCount.length; i++) {
+    if (routesCollisionCount[i] < lowestCollisionCount) {
+      indexOfSafestRoute = i;
+      lowestCollisionCount = routesCollisionCount[i];
     }
   }
-  return minIndex;
+  return indexOfSafestRoute;
 }
-function safestRoute() {
-  var IndexMin = indexOfMin(accidents);
+function displaySafestRoute() {
+  var indexOfSafestRoute = getIndexOfSafestRoute(accidents);
   for (var a = 0; a < routes.length; a++) {
-    if (a !== IndexMin) { 
+    if (a !== indexOfSafestRoute) { 
       routes[a].setMap(null);
     }
   }
