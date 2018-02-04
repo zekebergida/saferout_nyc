@@ -99,7 +99,7 @@
             <!-- <hr class="light"> -->
             <p class="text-faded">Choose a travel mode then enter your origin and destination to visualize your route options. Choose Get Route Info to get the details.</p>
             <!-- <p class="text-faded">Enter your origin and destination to visualize your route options.</p> -->
-            <a class="btn btn-default btn-xl js-scroll-trigger" onclick="getCollisionCount(); distanceAndDuration(); window.location.hash = '#control_panel'">Get Route Info</a>
+            <a id="btn_route_info" class="btn btn-default btn-xl js-scroll-trigger">Get Route Info</a>
             <a class="btn btn-default btn-xl js-scroll-trigger" onclick="clearMarkers(); safestRoute(); window.location.hash = '#map'" >Show Safest Route</a>
             <a class="btn btn-default btn-xl js-scroll-trigger" onclick="resetMap()" href="#map" >Reset Map</a>
           </div>
@@ -141,7 +141,7 @@
           <div class="col-lg-4 col-md-6 text-center">
             <div class="service-box">
               <!-- <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i> -->
-              <h3 style="color:green;">Route 3</h3>
+              <h3 style="color:gold;">Route 3</h3>
               <p class="distance text-muted"></p>
               <p class="duration text-muted"></p>
               <p class="text-muted data_title"></p>

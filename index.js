@@ -149,6 +149,16 @@ AutocompleteDirectionsHandler.prototype.route = function() {
 
 
 // functions for control panel buttons
+$("#btn_route_info").click( function(){
+  getCollisionCount();
+  distanceAndDuration();
+  window.location.hash = '#control_panel'
+  });
+
+
+
+
+
 function setMapOnAll(map) {
   for (var i = 0; i < markers.length; i++) {
     markers[i].setMap(map);
