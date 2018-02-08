@@ -115,14 +115,14 @@ AutocompleteDirectionsHandler.prototype.route = function() {
         markers.push(routeMarker);
         routes.push(route);
         routesCollisionCount.push(0);
-        // second loop to iterate over points on overview_path and locate relevant collisions near each point
-        for (var n = 0; n < response.routes[i].overview_path.length; n++) {
+        // inner loop to iterate over points on overview_path of current rout and locate relevant collisions near each point
+        for (var j = 0; j < response.routes[i].overview_path.length; j++) {
           (function(i) {
             // this query for collision locations is inaccurate because points on the overview path are not at a set distance from each other. Therefor finding collisions within a set radius of each point will result in some duplicates and some ommisions
-            $.get("https://data.cityofnewyork.us/resource/qiz3-axqb.geojson?$where=within_circle(location, " + response.routes[i].overview_path[n].lat() + ", " + response.routes[i].overview_path[n].lng() + ", 15) AND (number_of_pedestrians_injured > 0 OR number_of_pedestrians_killed > 0 OR number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)").then(function(result) {
+            $.get("https://data.cityofnewyork.us/resource/qiz3-axqb.geojson?$where=within_circle(location, " + response.routes[i].overview_path[j].lat() + ", " + response.routes[i].overview_path[j].lng() + ", 15) AND (number_of_pedestrians_injured > 0 OR number_of_pedestrians_killed > 0 OR number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)").then(function(result) {
               // third loop to create a marker for each collision in the response
-              for (var f = 0; f < result.features.length; f++) {
-                var coords = result.features[f].geometry.coordinates;
+              for (var k = 0; k < result.features.length; k++) {
+                var coords = result.features[k].geometry.coordinates;
                 var latLng = new google.maps.LatLng(coords[1],coords[0]);
                 
                 var marker = new google.maps.Marker({
@@ -193,20 +193,20 @@ function getIndexOfSafestRoute(routesCollisionCount) {
 }
 function displaySafestRoute() {
   var indexOfSafestRoute = getIndexOfSafestRoute(routesCollisionCount);
-  for (var a = 0; a < routes.length; a++) {
-    if (a !== indexOfSafestRoute) { 
-      routes[a].setMap(null);
+  for (var i = 0; i < routes.length; i++) {
+    if (i !== indexOfSafestRoute) { 
+      routes[i].setMap(null);
     }
   }
 }
 function distanceAndDuration() {
   console.log(routes[0].directions.routes);
-  var time = document.getElementsByClassName("duration");
-  var far = document.getElementsByClassName("distance");
-  for (var q = 0; q < 3; q++) {
-    if (q + 1 <= routesCollisionCount.length) {
-      time[q].innerHTML = 'Duration: <span style="font-weight:700; color:navy;">' + routes[0].directions.routes[q].legs[0].duration.text + "</span>";
-      far[q].innerHTML = 'Distance: <span style="font-weight:700; color:navy;">' + routes[0].directions.routes[q].legs[0].distance.text; + "</span>";
+  var routeDuration = document.getElementsByClassName("duration");
+  var routeDistance = document.getElementsByClassName("distance");
+  for (var i = 0; i < 3; i++) {
+    if (i + 1 <= routesCollisionCount.length) {
+      routeDuration[i].innerHTML = 'Duration: <span style="font-weight:700; color:navy;">' + routes[0].directions.routes[i].legs[0].duration.text + "</span>";
+      routeDistance[i].innerHTML = 'Distance: <span style="font-weight:700; color:navy;">' + routes[0].directions.routes[i].legs[0].distance.text; + "</span>";
     }
   }
 }
@@ -226,8 +226,8 @@ function getCollisionCount() {
 function resetMap() {
   location.reload();
   clearMarkers();
-  for (var a = 0; a < routes.length; a++) { 
-    routes[a].setMap(null);
+  for (var i = 0; i < routes.length; i++) { 
+    routes[i].setMap(null);
   }
   markers = [];
   routes = [];
