@@ -75,10 +75,7 @@ AutocompleteDirectionsHandler.prototype.setupPlaceChangedListener = function(aut
   });
 
 };
-var polylineColors = ["red", "blue", "yellow"];
-var markers = [];
 var routes = [];
-var routesCollisionCount = [];
 // getting directions
 AutocompleteDirectionsHandler.prototype.route = function() {
   if (!this.originPlaceId || !this.destinationPlaceId) {
@@ -93,7 +90,8 @@ AutocompleteDirectionsHandler.prototype.route = function() {
     provideRouteAlternatives: true,
   }, function(response, status) {
     if (status === 'OK') {
-      // first loop  to display all routes in the response   
+      // first loop  to display all routes in the response  
+      var polylineColors = ["red", "blue", "yellow"];
       for (var i = 0, len = response.routes.length; i < len; i++) {
         var route = new google.maps.DirectionsRenderer({
           map: this.map,
@@ -105,16 +103,17 @@ AutocompleteDirectionsHandler.prototype.route = function() {
             strokeWeight: 6
           }
         });
+        routes.push(route);
+        route.collisionCount = 0;
+        route.collisionMarkers = [];
         // create marker to label each route
-        var middlePointOnOverviewPath = Math.floor(response.routes["" + i + ""].overview_path.length / 2);
+        var middlePointOnOverviewPath = Math.floor(response.routes[i].overview_path.length / 2);
         var routeMarker = new google.maps.Marker({
           position: response.routes[i].overview_path[middlePointOnOverviewPath],
           map: this.map,
           label: (i + 1).toString()
         });
-        markers.push(routeMarker);
-        routes.push(route);
-        routesCollisionCount.push(0);
+        route.routeMarker = routeMarker;
         // inner loop to iterate over points on overview_path of current rout and locate relevant collisions near each point
         for (var j = 0; j < response.routes[i].overview_path.length; j++) {
           (function(i) {
@@ -131,8 +130,10 @@ AutocompleteDirectionsHandler.prototype.route = function() {
                   icon: "assets/bang.png"
                 }
                 );
-                markers.push(marker);
-                routesCollisionCount[i] += 1;
+                routes[i].collisionMarkers.push(marker);
+                routes[i].collisionCount += 1;
+                // console.log(routes[i].collisionCount)
+                console.log(i)
               }
             }.bind(this));
           }.bind(this))(i);  
@@ -156,7 +157,6 @@ $("#btn_route_info").click( function(){
   });
 
 $("#btn_safest_route").click( function(){
-  clearMarkers();
   displaySafestRoute();
   window.location.hash = '#map'
 });
@@ -166,71 +166,71 @@ $("#btn_reset_map").click( function(){
 });
 
 
-function clearMarkers() {
-  setMapForMarkers(null);
-}
-function setMapForMarkers(map) {
-  for (var i = 0; i < markers.length; i++) {
-    markers[i].setMap(map);
-  }
-}
-
-
-
-function getIndexOfSafestRoute(routesCollisionCount) {
-  if (routesCollisionCount.length === 0) {
-    return -1;
-  }
-  var lowestCollisionCount = routesCollisionCount[0];
+function getIndexOfSafestRoute() {
   var indexOfSafestRoute = 0;
-  for (var i = 1; i < routesCollisionCount.length; i++) {
-    if (routesCollisionCount[i] < lowestCollisionCount) {
+  var collisionCountOnSafestRoute = routes[0].collisionCount;
+  for (var i = 1; i < routes.length; i++) {
+    if (routes[i].collisionCount < collisionCountOnSafestRoute) {
       indexOfSafestRoute = i;
-      lowestCollisionCount = routesCollisionCount[i];
+      collisionCountOnSafestRoute = routes[i].collisionCount
     }
   }
   return indexOfSafestRoute;
-}
+};
+
 function displaySafestRoute() {
-  var indexOfSafestRoute = getIndexOfSafestRoute(routesCollisionCount);
+  var indexOfSafestRoute = getIndexOfSafestRoute();
   for (var i = 0; i < routes.length; i++) {
     if (i !== indexOfSafestRoute) { 
+      console.log(routes[i]);
       routes[i].setMap(null);
+      clearRouteMarkers(i);
     }
   }
-}
+};
+
+function clearRouteMarkers(routeIndex) {
+  routes[routeIndex].routeMarker.setMap(null)
+  var collisionMarkers = routes[routeIndex].collisionMarkers;
+  for (var i = 0; i < collisionMarkers.length; i++) {
+    collisionMarkers[i].setMap(null);
+  };
+};
+
 function distanceAndDuration() {
   console.log(routes[0].directions.routes);
   var routeDuration = document.getElementsByClassName("duration");
   var routeDistance = document.getElementsByClassName("distance");
   for (var i = 0; i < 3; i++) {
-    if (i + 1 <= routesCollisionCount.length) {
+    if (i + 1 <= routes.length) {
       routeDuration[i].innerHTML = 'Duration: <span style="font-weight:700; color:navy;">' + routes[0].directions.routes[i].legs[0].duration.text + "</span>";
       routeDistance[i].innerHTML = 'Distance: <span style="font-weight:700; color:navy;">' + routes[0].directions.routes[i].legs[0].distance.text; + "</span>";
     }
   }
-}
-function getCollisionCount() {
-  var d = document.getElementsByClassName("data");
-  var dt = document.getElementsByClassName("data_title");
+};
 
-  for (var i = 0; i < d.length; i++) {
-    if (i + 1 <= routesCollisionCount.length) {
-      d[i].innerHTML = "" + routesCollisionCount[i] + ""
-      dt[i].innerHTML = "Number of Pedestrians and Cyclists Injured or Killed on This Route";
+function getCollisionCount() {
+  var collisionCount = document.getElementsByClassName("data");
+  var header = document.getElementsByClassName("data_title");
+
+  for (var i = 0; i < 3; i++) {
+    if (i + 1 <= routes.length) {
+      collisionCount[i].innerHTML = "" + routes[i].collisionCount + ""
+      header[i].innerHTML = "Collisions on this route that injured or killed Pedestrians or Cyclists";
     } else {
-      dt[i].innerHTML = "No Additional Routes";
+      header[i].innerHTML = "No Additional Routes";
     }
   }
-}
+};
+
 function resetMap() {
   location.reload();
-  clearMarkers();
-  for (var i = 0; i < routes.length; i++) { 
-    routes[i].setMap(null);
-  }
-  markers = [];
-  routes = [];
-  routesCollisionCount = [];
+  // clearMarkers();
+  // for (var i = 0; i < routes.length; i++) { 
+  //   routes[i].setMap(null);
+  // }
+  // markers = [];
+  // routes = [];
+  // routesCollisionCount = [];
 }
 // functions for control panel buttons end
