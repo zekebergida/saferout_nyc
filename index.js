@@ -93,6 +93,7 @@ AutocompleteDirectionsHandler.prototype.route = function() {
       // first loop  to display all routes in the response  
       var polylineColors = ["red", "blue", "yellow"];
       for (var i = 0, len = response.routes.length; i < len; i++) {
+
         var route = new google.maps.DirectionsRenderer({
           map: this.map,
           directions: response,
@@ -103,22 +104,26 @@ AutocompleteDirectionsHandler.prototype.route = function() {
             strokeWeight: 6
           }
         });
+
         routes.push(route);
         route.collisionCount = 0;
         route.collisionMarkers = [];
+        var overviewPath = route.directions.routes[route.routeIndex].overview_path
+
         // create marker to label each route
-        var middlePointOnOverviewPath = Math.floor(response.routes[i].overview_path.length / 2);
+        var middlePointOnOverviewPath = Math.floor(overviewPath.length / 2);
         var routeMarker = new google.maps.Marker({
-          position: response.routes[i].overview_path[middlePointOnOverviewPath],
+          position: overviewPath[middlePointOnOverviewPath],
           map: this.map,
           label: (i + 1).toString()
         });
         route.routeMarker = routeMarker;
+
         // inner loop to iterate over points on overview_path of current rout and locate relevant collisions near each point
-        for (var j = 0; j < response.routes[i].overview_path.length; j++) {
-          (function(i) {
+        for (var j = 0; j < overviewPath.length; j++) {
+          (function(route) {
             // this query for collision locations is inaccurate because points on the overview path are not at a set distance from each other. Therefor finding collisions within a set radius of each point will result in some duplicates and some ommisions
-            $.get("https://data.cityofnewyork.us/resource/qiz3-axqb.geojson?$where=within_circle(location, " + response.routes[i].overview_path[j].lat() + ", " + response.routes[i].overview_path[j].lng() + ", 15) AND (number_of_pedestrians_injured > 0 OR number_of_pedestrians_killed > 0 OR number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)").then(function(result) {
+            $.get("https://data.cityofnewyork.us/resource/qiz3-axqb.geojson?$where=within_circle(location, " + overviewPath[j].lat() + ", " + overviewPath[j].lng() + ", 15) AND (number_of_pedestrians_injured > 0 OR number_of_pedestrians_killed > 0 OR number_of_cyclist_injured > 0 OR number_of_cyclist_killed > 0)").then(function(result) {
               // third loop to create a marker for each collision in the response
               for (var k = 0; k < result.features.length; k++) {
                 var coords = result.features[k].geometry.coordinates;
@@ -130,16 +135,13 @@ AutocompleteDirectionsHandler.prototype.route = function() {
                   icon: "assets/bang.png"
                 }
                 );
-                routes[i].collisionMarkers.push(marker);
-                routes[i].collisionCount += 1;
-                // console.log(routes[i].collisionCount)
-                console.log(i)
+                route.collisionMarkers.push(marker);
+                route.collisionCount += 1;
               }
             }.bind(this));
-          }.bind(this))(i);  
-        }
-      }
-      // 
+          }.bind(this))(route);  
+        };
+      };
     } else {
       window.alert('Directions request failed due to ' + status);
     }
