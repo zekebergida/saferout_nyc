@@ -9,6 +9,8 @@
   });
 
   new AutocompleteDirectionsHandler(map);
+  $("#directions_panel").hide();
+
 }
 
 /**
@@ -108,6 +110,7 @@ AutocompleteDirectionsHandler.prototype.route = function() {
         routes.push(route);
         route.collisionCount = 0;
         route.collisionMarkers = [];
+        // route.setPanel(document.getElementById("directions_panel"))
         var overviewPath = route.directions.routes[route.routeIndex].overview_path
 
         // create marker to label each route
@@ -155,12 +158,13 @@ AutocompleteDirectionsHandler.prototype.route = function() {
 $("#btn_route_info").click( function(){
   getCollisionCount();
   distanceAndDuration();
-  window.location.hash = '#control_panel'
-  });
+  window.location.hash = '#control_panel';
+});
 
 $("#btn_safest_route").click( function(){
   displaySafestRoute();
-  window.location.hash = '#map'
+  window.location.hash = '#map';
+  $("#directions_panel").slideDown();
 });
 
 $("#btn_reset_map").click( function(){
@@ -184,11 +188,11 @@ function displaySafestRoute() {
   var indexOfSafestRoute = getIndexOfSafestRoute();
   for (var i = 0; i < routes.length; i++) {
     if (i !== indexOfSafestRoute) { 
-      console.log(routes[i]);
       routes[i].setMap(null);
       clearRouteMarkers(i);
     }
   }
+  routes[indexOfSafestRoute].setPanel(document.getElementById("directions_panel"))
 };
 
 function clearRouteMarkers(routeIndex) {
@@ -200,7 +204,6 @@ function clearRouteMarkers(routeIndex) {
 };
 
 function distanceAndDuration() {
-  console.log(routes[0].directions.routes);
   var routeDuration = document.getElementsByClassName("duration");
   var routeDistance = document.getElementsByClassName("distance");
   for (var i = 0; i < 3; i++) {
