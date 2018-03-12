@@ -9,8 +9,6 @@
   });
 
   new AutocompleteDirectionsHandler(map);
-  $("#directions_panel").hide();
-
 }
 
 /**
@@ -162,9 +160,12 @@ $("#btn_route_info").click( function(){
 });
 
 $("#btn_safest_route").click( function(){
-  displaySafestRoute();
   window.location.hash = '#map';
-  $("#directions_panel").slideDown();
+  // $("#directions_panel").slideDown();
+  displaySafestRoute();
+  $("#map").removeClass("col-12")
+  $("#map").addClass("col-9")
+  $("#directions_panel").addClass("col-3")
 });
 
 $("#btn_reset_map").click( function(){
